@@ -1,0 +1,104 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://gdit.com/dee/jsonschema/basetypes",
+	"definitions": {
+		"basetypes.integer": {
+			"type": "integer"
+		},
+		"basetypes.long": {
+			"type": "integer"
+		},
+		"basetypes.datetime": {
+			"type": "string"
+		},
+		"basetypes.double": {
+			"type": "number"
+		},
+		"basetypes.byte": {
+			"type": "string"
+		},
+		"basetypes.string": {
+			"type": "string"
+		},
+		"basetypes.decimal": {
+			"type": "number"
+		},
+		"basetypes.boolean": {
+			"type": "boolean"
+		},
+		"basetypes.time": {
+			"type": "string"
+		},
+		"basetypes.date": {
+			"type": "string"
+		},
+		"basetypes.float": {
+			"type": "number"
+		},
+		"basetypes.Node": {
+			"type": "object",
+			"properties": {
+				"nodeType": {
+					"$ref": "#/definitions/basetypes.string"
+				},
+				"nodeId": {
+					"$ref": "#/definitions/basetypes.string"
+				},
+				"targetNode": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/basetypes.Node"
+					}
+				},
+				"nodeProperty": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/basetypes.NodeProperty"
+					}
+				}
+			}
+		},
+		"basetypes.NodeProperty": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"propertyKey": {
+					"$ref": "#/definitions/basetypes.string"
+				},
+				"propertyValue": {
+					"$ref": "#/definitions/basetypes.string"
+				},
+				"propertyTypeQname": {
+					"$ref": "#/definitions/basetypes.string"
+				}
+			}
+		},
+		"basetypes.NodeList": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"elementTypeQname": {
+					"$ref": "#/definitions/basetypes.string"
+				},
+				"node": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/basetypes.Node"
+					}
+				}
+			}
+		}
+	},
+	"type": "object",
+	"properties": {
+		
+	}
+}

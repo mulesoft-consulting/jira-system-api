@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:jira="http://www.mulesoft.org/schema/mule/jira" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jira http://www.mulesoft.org/schema/mule/jira/current/mule-jira.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ac1db37d-faa6-45a0-8406-be4035d495c0" >
+		<http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
+			<tls:context enabledProtocols="TLSv1.2" >
+				<tls:key-store type="jks" path="anypoint.jks" alias="anypoint" keyPassword="mule123" password="mule123" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="bfb156b9-5e6a-43b1-9f7e-a3d1b5d303e1" file="mule-artifact.properties" />
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="d0de9254-cf9d-4367-8ecd-f1859ff16b00" >
+		<os:connection />
+	</os:config>
+	<os:object-store name="OAuth_Token_store" doc:name="Object store" doc:id="767055f7-f4a7-476a-b7e8-d08b5c81d01d" config-ref="ObjectStore_Config" />
+	<jira:config name="Jira_Connector_Config" doc:name="Jira Connector Config" doc:id="5eb19d67-3c6d-468d-8c22-8155489fa817" >
+		<jira:oauth2-connection baseUri="${gdit.usaf.jira.baseUri}" audience="api.atlassian.com" prompt="consent" >
+			<jira:oauth-authorization-code consumerKey="${gdit.usaf.jira.consumerKey}" consumerSecret="${gdit.usaf.jira.consumerSecret}" scopes="${gdit.usaf.jira.scopes}" resourceOwnerId="${gdit.usaf.jira.resourceOwnerId}" />
+			<jira:oauth-callback-config listenerConfig="HTTP_Listener_config" callbackPath="${gdit.usaf.jira.callbackPath}" authorizePath="${gdit.usaf.jira.authorizePath}" externalCallbackUrl="${gdit.usaf.jira.externalCallbackUrl}" />
+			<jira:oauth-store-config objectStore="OAuth_Token_store" />
+		</jira:oauth2-connection>
+	</jira:config>
+	<os:object-store name="Watermark_Object_store" doc:name="Object store" doc:id="171b6a6f-e7af-4347-898e-d1bf2bd07436" />
+	<flow name="gdit-jira-system-apiFlow" doc:id="4981cf91-1764-4756-ad03-fa00fecddb0c" >
+		<http:listener doc:name="Listener" doc:id="ff21037c-560a-4402-b1dd-c6ebd99f3417" config-ref="HTTP_Listener_config" path="/jira"/>
+		<jira:get-rest-api3-search doc:name="Search For Issues Using Jql" doc:id="377f8e4b-c6ca-4b16-a306-bbdaa5f1470d" config-ref="Jira_Connector_Config" jql="#[&quot;project = &quot; ++ p('gdit.usaf.jira.project')]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1a7db513-6832-4c52-9017-4da6e734fe56" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	nodeId: uuid(),
+	nodeType: "jira.IssueList",
+	expand: payload.expand,
+	total: payload.total,
+	maxResults: payload.maxResults,
+	"issues": (payload.issues map (item, index) -> {
+			nodeId: uuid(),
+			nodeType: "jira.Issue",
+			id: item.id,
+			key: item.key,
+			self: item.self,
+			expand: item.expand,
+			"fields": {
+				nodeId: uuid(),
+				nodeType: "jira.Fields",
+				summary: item.fields.summary,
+				created: item.fields.created,
+				updated: item.fields.updated,
+				description: item.fields.description,
+				"customfield_10014": item.fields."customfield_10014",
+				"issuetype": {
+					nodeId: uuid(),
+					nodeType: "jira.IssueType",
+					avatarId: item.fields.issuetype.avatarId,
+					name: item.fields.issuetype.name,
+					self: item.fields.issuetype.self,
+					description: item.fields.issuetype.description,
+					entityId: item.fields.issuetype.entityId,
+					id: item.fields.issuetype.id,
+					iconUrl: item.fields.issuetype.iconUrl,
+					subtask: item.fields.issuetype.subtask
+				},
+				"project": {
+					nodeId: uuid(),
+					nodeType: "jira.Project",
+					simplified: item.fields.project.simplified,
+					name: item.fields.project.name,
+					self: item.fields.project.self,
+					id: item.fields.project.id,
+					projectTypeKey: item.fields.project.projectTypeKey,
+					key: item.fields.project.key
+				}, 
+				"priority": {
+					nodeId: uuid(),
+					nodeType: "jira.Priority",
+					name: item.fields.priority.name,
+					self: item.fields.priority.self,
+					iconUrl: item.fields.priority.iconUrl,
+					id: item.fields.priority.id
+				},
+				"reporter": {
+					nodeId: uuid(),
+					nodeType: "jira.User",
+					self: item.fields.reporter.self,
+					name: item.fields.reporter.displayName,
+					key: item.fields.reporter.key,
+					emailAddress: item.fields.reporter.emailAddress,
+					displayName: item.fields.reporter.displayName,
+					active: item.fields.reporter.active,
+					timezone: item.fields.reporter.timeZone,
+					locale: item.fields.reporter.locale,
+					accountType: item.fields.reporter.accountType
+				},
+				"status": {
+					nodeId: uuid(),
+					nodeType: "jira.Status",
+					name: item.fields.status.name,
+					self: item.fields.status.self,
+					description: item.fields.status.description,
+					iconUrl: item.fields.status.iconUrl,
+					id: item.fields.status.id,
+					statusColor: item.fields.status.statusCategory.colorName
+				},
+				"components": (item.fields.components map (itemComponent, indexComponent) -> {
+					nodeId: uuid(),
+					nodeType: "jira.Component",
+					self: itemComponent.self,
+					id: itemComponent.id,
+					name: itemComponent.name,
+					description: itemComponent.description
+				})					
+			},
+			"linkedToFeature": (item.fields.issuelinks map (itemLink, indexLink) -> {
+				nodeId: uuid(),
+				nodeType: "jira.FeatureLink",
+				mvcr: itemLink.mvcr,
+				featureId: itemLink.featureId
+			}),
+			"tracesTo": []
+	})
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="gdit-jira-system-apiFlow1" doc:id="db1458f6-2a49-43f6-a436-11063e7b3854" >
+		<scheduler doc:name="Scheduler" doc:id="04b5ea10-2fe2-45ea-a0b6-1264ef65fa89" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="${scheduler.frequency}"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve doc:name="Retrieve Watermark" doc:id="1d167544-c15a-4635-b909-16e900ee8b20" key="lastRunTimestamp" objectStore="Watermark_Object_store" target="lastRunTimestamp">
+			<os:default-value ><![CDATA[#[((now() >> "America/New_York") - |PT1M|) as String {format: "yyyy-MM-dd HH:mm"}]]]></os:default-value>
+		</os:retrieve>
+		<logger level="INFO" doc:name="Logger" doc:id="21a60b08-497b-4ec1-9ce4-127aec32ed96" message="#[vars.lastRunTimestamp]"/>
+		<jira:get-rest-api3-search doc:name="Search For Issues Using Jql" doc:id="86152b29-3cdd-48c0-b16c-69f2a328807f" config-ref="Jira_Connector_Config" jql="#[&quot;project = &quot; ++ p('gdit.usaf.jira.project') ++ &quot; and updated &gt;= \&quot;&quot; ++ (vars.lastRunTimestamp as String {format: &quot;yyyy/MM/dd HH:mm&quot;}) ++ &quot;\&quot;&quot;]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="95626f27-f512-4904-a2f6-bcf4e7a8bb5c" message="#[payload.total]"/>
+		<ee:transform doc:name="Transform Message" doc:id="3e2d6f5c-ef27-4300-bc1e-8a7c0f55a937" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	nodeId: uuid(),
+	nodeType: "jira.IssueList",
+	expand: payload.expand,
+	total: payload.total,
+	maxResults: payload.maxResults,
+	"issues": (payload.issues map (item, index) -> {
+			nodeId: uuid(),
+			nodeType: "jira.Issue",
+			id: item.id,
+			key: item.key,
+			self: item.self,
+			expand: item.expand,
+			"fields": {
+				nodeId: uuid(),
+				nodeType: "jira.Fields",
+				summary: item.fields.summary,
+				created: item.fields.created,
+				updated: item.fields.updated,
+				description: item.fields.description,
+				"customfield_10014": item.fields."customfield_10014",
+				"issuetype": {
+					nodeId: uuid(),
+					nodeType: "jira.IssueType",
+					avatarId: item.fields.issuetype.avatarId,
+					name: item.fields.issuetype.name,
+					self: item.fields.issuetype.self,
+					description: item.fields.issuetype.description,
+					entityId: item.fields.issuetype.entityId,
+					id: item.fields.issuetype.id,
+					iconUrl: item.fields.issuetype.iconUrl,
+					subtask: item.fields.issuetype.subtask
+				},
+				"project": {
+					nodeId: uuid(),
+					nodeType: "jira.Project",
+					simplified: item.fields.project.simplified,
+					name: item.fields.project.name,
+					self: item.fields.project.self,
+					id: item.fields.project.id,
+					projectTypeKey: item.fields.project.projectTypeKey,
+					key: item.fields.project.key
+				}, 
+				"priority": {
+					nodeId: uuid(),
+					nodeType: "jira.Priority",
+					name: item.fields.priority.name,
+					self: item.fields.priority.self,
+					iconUrl: item.fields.priority.iconUrl,
+					id: item.fields.priority.id
+				},
+				"reporter": {
+					nodeId: uuid(),
+					nodeType: "jira.User",
+					self: item.fields.reporter.self,
+					name: item.fields.reporter.displayName,
+					key: item.fields.reporter.key,
+					emailAddress: item.fields.reporter.emailAddress,
+					displayName: item.fields.reporter.displayName,
+					active: item.fields.reporter.active,
+					timezone: item.fields.reporter.timeZone,
+					locale: item.fields.reporter.locale,
+					accountType: item.fields.reporter.accountType
+				},
+				"status": {
+					nodeId: uuid(),
+					nodeType: "jira.Status",
+					name: item.fields.status.name,
+					self: item.fields.status.self,
+					description: item.fields.status.description,
+					iconUrl: item.fields.status.iconUrl,
+					id: item.fields.status.id,
+					statusColor: item.fields.status.statusCategory.colorName
+				},
+				"components": (item.fields.components map (itemComponent, indexComponent) -> {
+					nodeId: uuid(),
+					nodeType: "jira.Component",
+					self: itemComponent.self,
+					id: itemComponent.id,
+					name: itemComponent.name,
+					description: itemComponent.description
+				})					
+			},
+			"linkedToFeature": (item.fields.issuelinks map (itemLink, indexLink) -> {
+				nodeId: uuid(),
+				nodeType: "jira.FeatureLink",
+				mvcr: itemLink.mvcr,
+				featureId: itemLink.featureId
+			}),
+			"tracesTo": []
+	})
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="5d8f2216-ff21-499f-8d91-c2af358b3c4d" >
+			<when expression="#[payload.total &gt; 0]">
+				<http:request method="POST" doc:name="Notify Jira Changes to NavRel" doc:id="7daa7776-a3dc-45a7-ab49-087aa91e6f0b" url="${gdit.usaf.navrel.url}" responseTimeout="50000"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="3163dff5-98ae-4b19-9491-08640fa75df2" message="#[&quot;No changes in Jira Project - &quot; ++ p('gdit.usaf.jira.project')]"/>
+			</otherwise>
+		</choice>
+		<os:store doc:name="Update Watermark" doc:id="49e3c8c1-14ca-41e2-899b-867db3d447a9" key="lastRunTimestamp" objectStore="Watermark_Object_store">
+			<os:value ><![CDATA[#[(now() >> "America/New_York") as String {format: "yyyy-MM-dd HH:mm"}]]]></os:value>
+		</os:store>
+	</flow>
+</mule>

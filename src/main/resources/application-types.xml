@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="gdit-usaf-jiraDataType" format="json">
+      <types:shape format="json-schema" location="schemas/jira-corrected.json"/>
+    </types:type>
+    <types:type name="navRelDataType" format="json">
+      <types:shape format="json-schema" location="schemas/jira-corrected.json"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#1a7db513-6832-4c52-9017-4da6e734fe56">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="gdit-usaf-jiraDataType"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#3e2d6f5c-ef27-4300-bc1e-8a7c0f55a937">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="gdit-usaf-jiraDataType"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

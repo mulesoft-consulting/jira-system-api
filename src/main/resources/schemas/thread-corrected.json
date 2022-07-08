@@ -1,0 +1,88 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://gdit.com/dee/jsonschema/thread",
+	"definitions": {
+		"thread.Artifact": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"sourceId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"sourceRepoId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"description": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"version": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"creationUser": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"creationTimestamp": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.datetime"
+				},
+				"updateUser": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"updateTimestamp": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.datetime"
+				},
+				"fileName": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"thread.Thread": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"threadCompositionQname": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"threadId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"componentNode": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/thread.ComponentNode"
+					}
+				}
+			}
+		},
+		"thread.ComponentNode": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"roleName": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"node": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			}
+		}
+	},
+	"type": "object",
+	"properties": {
+		
+	}
+}

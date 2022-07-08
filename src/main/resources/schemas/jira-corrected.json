@@ -1,0 +1,355 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://gdit.com/dee/jsonschema/jira",
+	"definitions": {
+		"jira.Issue": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "thread-corrected.json#/definitions/thread.Artifact"
+				}
+			],
+			"properties": {
+				"expand": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"key": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"fields": {
+					"$ref": "#/definitions/jira.Fields"
+				},
+				"tracesTo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/jira.JiraModelElement"
+					}
+				},
+				"linkedToFeature": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/jira.FeatureLink"
+					}
+				}
+			}
+		},
+		"jira.User": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"key": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"emailAddress": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"displayName": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"active": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.boolean"
+				},
+				"timezone": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"locale": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"accountType": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.IssueType": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"avatarId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.integer"
+				},
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"description": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"entityId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"iconUrl": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"subtask": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.boolean"
+				}
+			}
+		},
+		"jira.Fields": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"summary": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"created": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"updated": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"description": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"customfield_10014": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"issuetype": {
+					"$ref": "#/definitions/jira.IssueType"
+				},
+				"project": {
+					"$ref": "#/definitions/jira.Project"
+				},
+				"priority": {
+					"$ref": "#/definitions/jira.Priority"
+				},
+				"reporter": {
+					"$ref": "#/definitions/jira.User"
+				},
+				"status": {
+					"$ref": "#/definitions/jira.Status"
+				},
+				"components": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/jira.Component"
+					}
+				}
+			}
+		},
+		"jira.Project": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"simplified": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.boolean"
+				},
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"projectTypeKey": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"key": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.Priority": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"iconUrl": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.Status": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"description": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"iconUrl": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"statusColor": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.JiraModelElement": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "thread-corrected.json#/definitions/thread.Artifact"
+				}
+			],
+			"properties": {
+				"elementId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"elementServerId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.JiraModelRequirement": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/jira.JiraModelElement"
+				}
+			],
+			"properties": {
+				"requirementId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"requirementText": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.JiraModelCapConfig": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "#/definitions/jira.JiraModelElement"
+				}
+			],
+			"properties": {
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"composedOf": {
+					"type": "array",
+					"items": {
+						"$ref": "https://gdit.com/dee/jsonschema/deeam#/definitions/deeam.DEEAMSystemElement"
+					}
+				}
+			}
+		},
+		"jira.Component": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"self": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"id": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"name": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"description": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		},
+		"jira.FeatureLink": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.Node"
+				}
+			],
+			"properties": {
+				"mvcr": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"featureId": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				}
+			}
+		}
+	},
+	"type": "object",
+	"properties": {
+		"jira.IssueList": {
+			"type": "object",
+			"allOf": [
+				{
+					"$ref": "thread-corrected.json#/definitions/thread.Artifact"
+				}
+			],
+			"properties": {
+				"expand": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.string"
+				},
+				"total": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.integer"
+				},
+				"maxResults": {
+					"$ref": "basetypes-corrected.json#/definitions/basetypes.integer"
+				},
+				"issues": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/jira.Issue"
+					}
+				}
+			}
+		}
+	}
+}
